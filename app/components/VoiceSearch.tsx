@@ -262,7 +262,7 @@ const VoiceSearch: React.FC<VoiceSearchProps> = ({
       onClick={toggleListening}
       className={`absolute right-12 top-1/2 transform -translate-y-1/2 ${
         isListening ? 'bg-red-500' : isProcessing ? 'bg-yellow-500' : 'bg-primary'
-      } text-white p-2 rounded-full w-10 h-10 flex items-center justify-center`}
+      } text-white p-2 rounded-full w-10 h-10 flex items-center justify-center shadow-md`}
       aria-label={isListening ? 'Stop listening' : 'Start voice search'}
       disabled={isProcessing || (!!error && error.includes('does not support'))}
     >
