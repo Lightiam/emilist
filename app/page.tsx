@@ -1,6 +1,7 @@
 import React from 'react';
 import Layout from '@/app/components/layout/Layout';
 import Link from 'next/link';
+import SearchBar from '@/app/components/SearchBar';
 
 export default function Home() {
   return (
@@ -72,19 +73,7 @@ export default function Home() {
                 </p>
                 
                 {/* Search Bar */}
-                <div className="relative max-w-xl mx-auto">
-                  <input
-                    type="text"
-                    placeholder="Ask AI anything"
-                    className="w-full px-5 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                  <button className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-primary text-white p-2 rounded-full w-10 h-10 flex items-center justify-center">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M19 19L14.65 14.65" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                </div>
+                <SearchBar />
               </div>
             </div>
           </div>
