@@ -13,12 +13,12 @@ export default function Home() {
             <div className="relative w-full max-w-4xl mx-auto">
               {/* Surrounding images */}
               <div className="absolute inset-0 z-0 overflow-hidden">
-                <img src="/assets/images/people/worker1.jpg" alt="Professional" className="absolute top-0 left-0 w-32 h-32 rounded-tl-3xl object-cover" />
-                <img src="/assets/images/people/worker2.jpg" alt="Professional" className="absolute top-32 left-16 w-32 h-32 rounded-full object-cover" />
-                <img src="/assets/images/people/worker3.jpg" alt="Professional" className="absolute top-0 right-0 w-32 h-32 rounded-tr-3xl object-cover" />
-                <img src="/assets/images/people/worker4.jpg" alt="Professional" className="absolute bottom-0 left-0 w-32 h-32 rounded-bl-3xl object-cover" />
-                <img src="/assets/images/people/worker5.jpg" alt="Professional" className="absolute bottom-32 right-12 w-32 h-32 rounded-full object-cover" />
-                <img src="/assets/images/people/worker6.jpg" alt="Professional" className="absolute bottom-0 right-0 w-32 h-32 rounded-br-3xl object-cover" />
+                <img src="/assets/images/people/person1.jpg" alt="Professional" className="absolute top-0 left-0 w-32 h-32 rounded-tl-3xl object-cover" />
+                <img src="/assets/images/people/person2.jpg" alt="Professional" className="absolute top-32 left-16 w-32 h-32 rounded-full object-cover" />
+                <img src="/assets/images/people/person3.jpg" alt="Professional" className="absolute top-0 right-0 w-32 h-32 rounded-tr-3xl object-cover" />
+                <img src="/assets/images/people/person4.jpg" alt="Professional" className="absolute bottom-0 left-0 w-32 h-32 rounded-bl-3xl object-cover" />
+                <img src="/assets/images/people/person5.jpg" alt="Professional" className="absolute bottom-32 right-12 w-32 h-32 rounded-full object-cover" />
+                <img src="/assets/images/people/person6.jpg" alt="Professional" className="absolute bottom-0 right-0 w-32 h-32 rounded-br-3xl object-cover" />
               </div>
               
               {/* Center content */}
