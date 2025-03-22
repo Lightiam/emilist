@@ -260,16 +260,16 @@ const VoiceSearch: React.FC<VoiceSearchProps> = ({
     <button 
       type="button"
       onClick={toggleListening}
-      className={`absolute right-12 top-1/2 transform -translate-y-1/2 ${
+      className={`absolute right-8 top-1/2 transform -translate-y-1/2 ${
         isListening ? 'bg-red-500' : isProcessing ? 'bg-yellow-500' : 'bg-primary'
-      } text-white p-2 rounded-full w-10 h-10 flex items-center justify-center`}
+      } text-white p-1 rounded-full w-6 h-6 flex items-center justify-center shadow-xs`}
       aria-label={isListening ? 'Stop listening' : 'Start voice search'}
       disabled={isProcessing || (!!error && error.includes('does not support'))}
     >
       <img 
         src="/assets/icons/microphone-icon.svg" 
         alt="Microphone" 
-        className={`w-5 h-5 ${isProcessing ? 'animate-pulse' : ''}`}
+        className={`w-3 h-3 ${isProcessing ? 'animate-pulse' : ''}`}
       />
     </button>
   );
