@@ -14,14 +14,14 @@ body {
 
 @layer components {
   .btn-primary {
-    @apply bg-primary text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all;
+    @apply bg-primary text-white px-3 py-1.5 rounded-md hover:bg-opacity-90 transition-all text-sm;
   }
   
   .btn-outline {
-    @apply border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-all;
+    @apply border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-50 transition-all text-sm;
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-md p-6;
+    @apply bg-white rounded-lg shadow-sm p-4;
   }
 }
