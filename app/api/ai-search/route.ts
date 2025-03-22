@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Configure route for static export
+export const dynamic = 'force-static';
+
 // In a production environment, you would use actual Google Cloud clients
 // const { SpeechClient } = require('@google-cloud/speech');
 // const { TranslationServiceClient } = require('@google-cloud/translate');

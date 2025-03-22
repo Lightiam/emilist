@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SpeechClient } from '@google-cloud/speech';
 import { protos } from '@google-cloud/speech';
 
+// Configure route for static export
+export const dynamic = 'force-static';
+
 // Define types for the Speech API
 type RecognizeRequest = protos.google.cloud.speech.v1.IRecognizeRequest;
 type RecognizeResponse = protos.google.cloud.speech.v1.IRecognizeResponse;
