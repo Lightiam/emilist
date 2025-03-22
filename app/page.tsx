@@ -8,17 +8,17 @@ export default function Home() {
     <Layout>
       <div className="container mx-auto px-4 py-6">
         {/* Hero Section */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+        <div className="bg-white rounded-lg shadow-xs p-6 mb-8">
           <div className="flex flex-col items-center">
             <div className="relative w-full max-w-4xl mx-auto">
               {/* Surrounding images */}
               <div className="absolute inset-0 z-0 overflow-hidden">
-                <img src="/assets/images/workers/worker1.jpg" alt="Professional" className="absolute top-0 left-0 w-24 h-24 rounded-tl-3xl object-cover" />
-                <img src="/assets/images/workers/worker2.jpg" alt="Professional" className="absolute top-32 left-16 w-24 h-24 rounded-full object-cover" />
-                <img src="/assets/images/workers/worker3.jpg" alt="Professional" className="absolute top-0 right-0 w-24 h-24 rounded-tr-3xl object-cover" />
-                <img src="/assets/images/workers/worker4.jpg" alt="Professional" className="absolute bottom-0 left-0 w-24 h-24 rounded-bl-3xl object-cover" />
-                <img src="/assets/images/workers/worker5.jpg" alt="Professional" className="absolute bottom-32 right-12 w-24 h-24 rounded-full object-cover" />
-                <img src="/assets/images/workers/worker6.jpg" alt="Professional" className="absolute bottom-0 right-0 w-24 h-24 rounded-br-3xl object-cover" />
+                <img src="/assets/images/people/worker1.jpg" alt="Professional" className="absolute top-0 left-0 w-24 h-24 rounded-tl-3xl object-cover" />
+                <img src="/assets/images/people/worker2.jpg" alt="Professional" className="absolute top-32 left-16 w-24 h-24 rounded-full object-cover" />
+                <img src="/assets/images/people/worker3.jpg" alt="Professional" className="absolute top-0 right-0 w-24 h-24 rounded-tr-3xl object-cover" />
+                <img src="/assets/images/people/worker4.jpg" alt="Professional" className="absolute bottom-0 left-0 w-24 h-24 rounded-bl-3xl object-cover" />
+                <img src="/assets/images/people/worker5.jpg" alt="Professional" className="absolute bottom-32 right-12 w-24 h-24 rounded-full object-cover" />
+                <img src="/assets/images/people/worker6.jpg" alt="Professional" className="absolute bottom-0 right-0 w-24 h-24 rounded-br-3xl object-cover" />
               </div>
               
               {/* Center content */}
@@ -40,7 +40,7 @@ export default function Home() {
         </div>
         
         {/* Service Categories */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
           <Link href="/service-providers" className="bg-white rounded-lg shadow-xs p-4 flex flex-col items-center text-center hover:shadow-sm transition-shadow">
             <div className="mb-3">
               <div className="w-10 h-10 bg-[#E6F7EC] rounded-full flex items-center justify-center">
