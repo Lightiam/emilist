@@ -1,0 +1,387 @@
+/* Styles for the Compare page */
+
+.compare-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.compare-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.compare-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.compare-description {
+  color: #6b7280;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.compare-selection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.selection-card {
+  flex: 1;
+  min-width: 300px;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.selection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.selection-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.selection-clear {
+  font-size: 0.875rem;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.selection-clear:hover {
+  color: #ef4444;
+}
+
+.selection-search {
+  margin-bottom: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.selection-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.selection-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+}
+
+.selection-item:last-child {
+  border-bottom: none;
+}
+
+.selection-item:hover {
+  background-color: #f9fafb;
+}
+
+.selection-item.selected {
+  background-color: #f0fdf4;
+  border-left: 3px solid #22C55E;
+}
+
+.item-image {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.375rem;
+  object-fit: cover;
+  margin-right: 1rem;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.item-details {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.item-checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.25rem;
+  border: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.item-checkbox.checked {
+  background-color: #22C55E;
+  border-color: #22C55E;
+}
+
+.compare-table {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, 2fr);
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.header-cell {
+  padding: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4b5563;
+  text-align: center;
+}
+
+.header-cell:first-child {
+  text-align: left;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, 2fr);
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-cell {
+  padding: 1rem;
+  font-size: 0.875rem;
+  color: #374151;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.table-cell:first-child {
+  font-weight: 500;
+  text-align: left;
+}
+
+.cell-highlight {
+  background-color: #f0fdf4;
+}
+
+.cell-value {
+  font-weight: 500;
+}
+
+.cell-rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  color: #f59e0b;
+}
+
+.cell-price {
+  font-weight: 600;
+  color: #111827;
+}
+
+.cell-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-green {
+  background-color: #f0fdf4;
+  color: #16a34a;
+}
+
+.badge-yellow {
+  background-color: #fef9c3;
+  color: #ca8a04;
+}
+
+.badge-red {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.compare-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.action-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-primary {
+  background-color: #22C55E;
+  color: white;
+  border: none;
+}
+
+.action-primary:hover {
+  background-color: #16a34a;
+}
+
+.action-secondary {
+  background-color: white;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+.action-secondary:hover {
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.recommendation-section {
+  margin-bottom: 2rem;
+}
+
+.recommendation-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.recommendation-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.recommendation-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.recommendation-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: #f0fdf4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #22C55E;
+  margin-right: 1rem;
+}
+
+.recommendation-heading {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.recommendation-content {
+  font-size: 0.875rem;
+  color: #4b5563;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.recommendation-list {
+  margin-bottom: 1.5rem;
+}
+
+.recommendation-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.recommendation-item:last-child {
+  margin-bottom: 0;
+}
+
+.item-check {
+  color: #22C55E;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.recommendation-cta {
+  text-align: center;
+}
+
+.cta-button {
+  background-color: #22C55E;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cta-button:hover {
+  background-color: #16a34a;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .compare-selection {
+    flex-direction: column;
+  }
+  
+  .table-header, .table-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .header-cell, .table-cell {
+    padding: 0.75rem;
+  }
+  
+  .header-cell:nth-child(n+3), .table-cell:nth-child(n+3) {
+    display: none;
+  }
+}
