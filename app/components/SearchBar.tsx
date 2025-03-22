@@ -38,7 +38,7 @@ const SearchBar: React.FC = () => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Ask AI anything..."
-          className="w-full px-4 py-2 pr-20 rounded-full border border-gray-200 focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent shadow-sm text-sm"
+          className="w-full px-3 py-1.5 pr-16 rounded-full border border-gray-200 focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent shadow-xs text-xs"
         />
         
         {/* Language selector */}
@@ -59,13 +59,13 @@ const SearchBar: React.FC = () => {
         {/* Search button */}
         <button 
           type="submit"
-          className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-primary text-white p-1.5 rounded-full w-8 h-8 flex items-center justify-center shadow-sm"
+          className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-primary text-white p-1 rounded-full w-6 h-6 flex items-center justify-center shadow-xs"
           aria-label="Search"
         >
           <img 
             src="/assets/icons/search-icon.svg" 
             alt="Search" 
-            className="w-4 h-4"
+            className="w-3 h-3"
           />
         </button>
       </form>
