@@ -449,19 +449,19 @@ export class ExpertMatchingService {
       );
       
       // Organize experts into a team structure
-      const teamLead = matchedExperts.find(expert => 
+      const teamLead = matchedExperts.find((expert: any) => 
         expert.specialty.toLowerCase().includes('general') || 
         expert.specialty.toLowerCase().includes('project')
       ) || matchedExperts[0];
       
       // Remove team lead from the pool
-      const remainingExperts = matchedExperts.filter(expert => expert.id !== teamLead.id);
+      const remainingExperts = matchedExperts.filter((expert: any) => expert.id !== teamLead.id);
       
       // Select specialists based on project requirements
       const specialists = remainingExperts.slice(0, 3);
       
       // Calculate team cost estimates
-      const hourlyRates = [teamLead.hourlyRate, ...specialists.map(expert => expert.hourlyRate)];
+      const hourlyRates = [teamLead.hourlyRate, ...specialists.map((expert: any) => expert.hourlyRate)];
       const avgHourlyRate = hourlyRates.reduce((sum, rate) => sum + rate, 0) / hourlyRates.length;
       
       // Parse project complexity to estimate hours
