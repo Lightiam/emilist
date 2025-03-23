@@ -2,9 +2,15 @@ import { BaseAIService } from './baseAIService';
 
 export class ExpertMatchingService extends BaseAIService {
   private readonly apiKey = process.env.GROQ_API_KEY;
+  private readonly useMockResponses = true; // Set to false in production
   
   async findMatchingExperts(projectDescription: string, location: string, budget: number) {
     try {
+      // Use mock responses for development/testing
+      if (this.useMockResponses) {
+        return this.getMockResponse('expert-matching');
+      }
+      
       const endpoint = 'https://api.groq.com/openai/v1/chat/completions';
       
       // First, analyze the project to identify required skills and expertise
@@ -45,7 +51,7 @@ export class ExpertMatchingService extends BaseAIService {
         }
       };
     } catch (error) {
-      return this.handleError(error);
+      return this.handleError(typeof error === 'string' ? error : 'Failed to find matching experts');
     }
   }
   
@@ -89,7 +95,7 @@ export class ExpertMatchingService extends BaseAIService {
         experts: scoredExperts
       };
     } catch (error) {
-      return this.handleError(error);
+      return this.handleError(typeof error === 'string' ? error : 'Failed to rank experts by fit');
     }
   }
   

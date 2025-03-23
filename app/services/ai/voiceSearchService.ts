@@ -4,9 +4,15 @@ import { BaseAIService } from './baseAIService';
 export class VoiceSearchService extends BaseAIService {
   private readonly apiKey = process.env.GOOGLE_CLOUD_API_KEY;
   private readonly projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
+  private readonly useMockResponses = true; // Set to false in production
   
   async transcribeAudio(audioData: string, languageCode: string = 'auto') {
     try {
+      // Use mock responses for development/testing
+      if (this.useMockResponses) {
+        return this.getMockResponse('voice-search');
+      }
+      
       const endpoint = `https://speech.googleapis.com/v1p1beta1/speech:recognize`;
       
       const data = {
@@ -37,7 +43,7 @@ export class VoiceSearchService extends BaseAIService {
         detectedLanguage: response.results?.[0]?.languageCode || languageCode
       };
     } catch (error) {
-      return this.handleError(error);
+      return this.handleError(typeof error === 'string' ? error : 'Failed to transcribe audio');
     }
   }
   
@@ -51,7 +57,7 @@ export class VoiceSearchService extends BaseAIService {
         languages: this.getLanguagesList()
       };
     } catch (error) {
-      return this.handleError(error);
+      return this.handleError(typeof error === 'string' ? error : 'Failed to get supported languages');
     }
   }
 

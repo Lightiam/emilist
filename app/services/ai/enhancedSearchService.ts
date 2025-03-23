@@ -2,9 +2,15 @@ import { BaseAIService } from './baseAIService';
 
 export class EnhancedSearchService extends BaseAIService {
   private readonly apiKey = process.env.GROQ_API_KEY;
+  private readonly useMockResponses = true; // Set to false in production
   
   async enhanceSearchQuery(query: string, language: string = 'en') {
     try {
+      // Use mock responses for development/testing
+      if (this.useMockResponses) {
+        return this.getMockResponse('enhanced-search');
+      }
+      
       const endpoint = 'https://api.groq.com/openai/v1/chat/completions';
       
       const data = {
@@ -38,12 +44,27 @@ export class EnhancedSearchService extends BaseAIService {
         enhancedQuery
       };
     } catch (error) {
-      return this.handleError(error);
+      return this.handleError(typeof error === 'string' ? error : 'Failed to enhance search query');
     }
   }
 
   async getSearchSuggestions(partialQuery: string, language: string = 'en') {
     try {
+      // Use mock responses for development/testing
+      if (this.useMockResponses) {
+        return {
+          success: true,
+          partialQuery,
+          suggestions: [
+            "plumber for kitchen renovation",
+            "kitchen renovation specialist",
+            "bathroom plumbing repair",
+            "plumbing installation for kitchen",
+            "emergency plumber for kitchen leak"
+          ]
+        };
+      }
+      
       const endpoint = 'https://api.groq.com/openai/v1/chat/completions';
       
       const data = {
@@ -77,7 +98,7 @@ export class EnhancedSearchService extends BaseAIService {
         suggestions
       };
     } catch (error) {
-      return this.handleError(error);
+      return this.handleError(typeof error === 'string' ? error : 'Failed to get search suggestions');
     }
   }
 }
