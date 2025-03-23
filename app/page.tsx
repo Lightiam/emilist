@@ -3,15 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Layout from '@/app/components/layout/Layout';
+import SearchBar from '@/app/components/SearchBar';
 
 export default function Home() {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Searching for:', searchQuery);
-    // In a real implementation, this would trigger the AI search
-  };
 
   return (
     <Layout>
@@ -21,13 +15,13 @@ export default function Home() {
             <div className="hero-images flex justify-between relative">
               <div className="left-images flex flex-col justify-between w-[180px]">
                 <div className="image-container w-[160px] h-[140px] bg-[#f0f0f0] rounded-[15px] overflow-hidden">
-                  <img src="/assets/images/landing/worker1.jpg" alt="Person working on laptop" className="w-full h-full object-cover" />
+                  <img src="/assets/images/black-artisans/artisan1.jpg" alt="Black artisan working" className="w-full h-full object-cover" />
                 </div>
                 <div className="image-container w-[160px] h-[140px] bg-[#f0f0f0] rounded-[15px] overflow-hidden mt-4">
-                  <img src="/assets/images/landing/worker2.jpg" alt="Smiling professional" className="w-full h-full object-cover" />
+                  <img src="/assets/images/black-artisans/artisan2.jpg" alt="Black professional artisan" className="w-full h-full object-cover" />
                 </div>
                 <div className="image-container w-[160px] h-[140px] bg-[#f0f0f0] rounded-[15px] overflow-hidden mt-4">
-                  <img src="/assets/images/landing/worker3.jpg" alt="Person cleaning" className="w-full h-full object-cover" />
+                  <img src="/assets/images/black-artisans/artisan3.jpg" alt="Black artisan at work" className="w-full h-full object-cover" />
                 </div>
               </div>
               
@@ -40,34 +34,20 @@ export default function Home() {
                   customers with skilled artisans, handymen, and project experts for
                   renovations, custom-builds, and repairs.
                 </p>
-                <form onSubmit={handleSearch} className="search-bar flex max-w-[400px] mx-auto border border-gray-300 rounded-[25px] overflow-hidden px-5 py-2.5">
-                  <input 
-                    type="text" 
-                    className="search-input flex-1 border-none py-1.5 px-1 text-base focus:outline-none" 
-                    placeholder="Ask AI anything"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <button 
-                    type="submit" 
-                    className="search-button bg-[#4caf50] text-white w-8 h-8 border-none rounded-full cursor-pointer flex items-center justify-center"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                    </svg>
-                  </button>
-                </form>
+                <div className="search-container max-w-[400px] mx-auto">
+                  <SearchBar />
+                </div>
               </div>
               
               <div className="right-images flex flex-col justify-between w-[180px]">
                 <div className="image-container w-[160px] h-[140px] bg-[#f0f0f0] rounded-[15px] overflow-hidden">
-                  <img src="/assets/images/landing/worker4.jpg" alt="Person with camera" className="w-full h-full object-cover" />
+                  <img src="/assets/images/black-artisans/artisan4.jpg" alt="Black artisan with tools" className="w-full h-full object-cover" />
                 </div>
                 <div className="image-container w-[160px] h-[140px] bg-[#f0f0f0] rounded-[15px] overflow-hidden mt-4">
-                  <img src="/assets/images/landing/worker5.jpg" alt="Person gardening" className="w-full h-full object-cover" />
+                  <img src="/assets/images/black-artisans/artisan1.jpg" alt="Black artisan working" className="w-full h-full object-cover" />
                 </div>
                 <div className="image-container w-[160px] h-[140px] bg-[#f0f0f0] rounded-[15px] overflow-hidden mt-4">
-                  <img src="/assets/images/landing/worker6.jpg" alt="Craftsperson working" className="w-full h-full object-cover" />
+                  <img src="/assets/images/black-artisans/artisan2.jpg" alt="Black artisan at work" className="w-full h-full object-cover" />
                 </div>
               </div>
             </div>
