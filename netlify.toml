@@ -10,7 +10,12 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
 
-# Handle SPA routing
+# Handle Next.js static export routing
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
