@@ -4,12 +4,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Disable server components for static export
-  experimental: {
-    appDir: true,
-  },
   // Ensure trailing slashes for better compatibility with Netlify
   trailingSlash: true,
+  // Disable server components for static export
+  distDir: 'out',
 }
 
 module.exports = nextConfig
