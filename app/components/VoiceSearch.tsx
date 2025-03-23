@@ -97,7 +97,7 @@ const VoiceSearch: React.FC<VoiceSearchProps> = ({
       const audioData = convertAudioToWav(audioChunksRef.current, audioContextRef.current.sampleRate);
       
       // Use the AI voice search service for processing
-      import voiceSearchService from '../services/ai/voiceSearchService';
+      const voiceSearchService = await import('../services/ai/voiceSearchService').then(module => module.default);
       
       try {
         // Send to server for processing via the voice search service
@@ -107,14 +107,16 @@ const VoiceSearch: React.FC<VoiceSearchProps> = ({
         );
         
         if (!result.success) {
-          throw new Error(result.error || 'Failed to process speech');
+          throw new Error('Failed to process speech');
         }
         
         // Update with transcription and detected language
-        onTranscript(result.transcription);
-        
-        if (result.detectedLanguage) {
-          onLanguageDetected(result.detectedLanguage);
+        if ('transcription' in result) {
+          onTranscript(result.transcription);
+          
+          if ('detectedLanguage' in result && result.detectedLanguage) {
+            onLanguageDetected(result.detectedLanguage);
+          }
         }
       } catch (apiError) {
         // Fallback to direct API call if service fails
