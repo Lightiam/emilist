@@ -8,32 +8,39 @@ export default function Home() {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         {/* Hero Section */}
-        <div className="bg-white rounded-lg shadow-sm p-8 mb-12 relative">
+        <div className="bg-white rounded-lg shadow-sm p-8 mb-12">
           <div className="flex flex-col items-center">
             <div className="relative w-full max-w-4xl mx-auto">
-              {/* Surrounding images */}
-              <div className="absolute inset-0 z-0 overflow-hidden">
-                <img src="/assets/images/workers/worker1.jpg" alt="Professional" className="absolute -top-16 -left-16 w-40 h-40 rounded-tl-3xl object-cover hidden lg:block" />
-                <img src="/assets/images/workers/worker2.jpg" alt="Professional" className="absolute top-32 -left-16 w-40 h-40 rounded-full object-cover hidden lg:block" />
-                <img src="/assets/images/workers/worker3.jpg" alt="Professional" className="absolute -top-16 -right-16 w-40 h-40 rounded-tr-3xl object-cover hidden lg:block" />
-                <img src="/assets/images/workers/worker4.jpg" alt="Professional" className="absolute -bottom-16 -left-16 w-40 h-40 rounded-bl-3xl object-cover hidden lg:block" />
-                <img src="/assets/images/workers/worker5.jpg" alt="Professional" className="absolute top-32 -right-16 w-40 h-40 rounded-full object-cover hidden lg:block" />
-                <img src="/assets/images/workers/worker6.jpg" alt="Professional" className="absolute -bottom-16 -right-16 w-40 h-40 rounded-br-3xl object-cover hidden lg:block" />
-              </div>
-              
-              {/* Center content */}
-              <div className="text-center py-16 px-4 md:px-16 z-10 relative">
-                <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
-                  Discover Your Project<br />Dream Team Here.
-                </h1>
-                <p className="text-gray-600 mb-8 max-w-xl mx-auto">
-                  This platform connects homeowners, contractors, businesses, and 
-                  customers with skilled artisans, handymen, and project experts for 
-                  renovations, custom-builds, and repairs.
-                </p>
+              {/* Hero content with surrounding images */}
+              <div className="flex flex-col md:flex-row items-center">
+                {/* Left side images */}
+                <div className="hidden md:flex md:w-1/4 flex-col space-y-4 items-end">
+                  <img src="/assets/images/hero/person1.jpg" alt="Professional" className="w-32 h-32 rounded-tl-3xl object-cover" />
+                  <img src="/assets/images/hero/person2.jpg" alt="Professional" className="w-32 h-32 rounded-full object-cover" />
+                  <img src="/assets/images/hero/person3.jpg" alt="Professional" className="w-32 h-32 rounded-bl-3xl object-cover" />
+                </div>
                 
-                {/* Search Bar */}
-                <SearchBar />
+                {/* Center content */}
+                <div className="md:w-1/2 text-center py-8 px-4 z-10">
+                  <h1 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
+                    Discover Your Project<br />Dream Team Here.
+                  </h1>
+                  <p className="text-gray-600 mb-8 max-w-xl mx-auto">
+                    This platform connects homeowners, contractors, businesses, and 
+                    customers with skilled artisans, handymen, and project experts for 
+                    renovations, custom-builds, and repairs.
+                  </p>
+                  
+                  {/* Search Bar */}
+                  <SearchBar />
+                </div>
+                
+                {/* Right side images */}
+                <div className="hidden md:flex md:w-1/4 flex-col space-y-4 items-start">
+                  <img src="/assets/images/hero/person4.jpg" alt="Professional" className="w-32 h-32 rounded-tr-3xl object-cover" />
+                  <img src="/assets/images/hero/person5.jpg" alt="Professional" className="w-32 h-32 rounded-full object-cover" />
+                  <img src="/assets/images/hero/person6.jpg" alt="Professional" className="w-32 h-32 rounded-br-3xl object-cover" />
+                </div>
               </div>
             </div>
           </div>
