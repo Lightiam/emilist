@@ -96,33 +96,55 @@ const VoiceSearch: React.FC<VoiceSearchProps> = ({
       // Convert audio data to the right format for Google Speech API
       const audioData = convertAudioToWav(audioChunksRef.current, audioContextRef.current.sampleRate);
       
-      // Send to server for processing
-      const response = await fetch('/api/speech', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          audioData: arrayBufferToBase64(audioData),
-          languageCode: selectedLanguage === 'auto' ? 'auto' : selectedLanguage,
-        }),
-      });
+      // Use the AI voice search service for processing
+      import voiceSearchService from '../services/ai/voiceSearchService';
       
-      if (!response.ok) {
-        throw new Error('Failed to process speech');
-      }
-      
-      const result = await response.json();
-      
-      if (result.error) {
-        throw new Error(result.error);
-      }
-      
-      // Update with transcription and detected language
-      onTranscript(result.transcription);
-      
-      if (result.detectedLanguage) {
-        onLanguageDetected(result.detectedLanguage);
+      try {
+        // Send to server for processing via the voice search service
+        const result = await voiceSearchService.transcribeAudio(
+          arrayBufferToBase64(audioData),
+          selectedLanguage === 'auto' ? 'auto' : selectedLanguage
+        );
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to process speech');
+        }
+        
+        // Update with transcription and detected language
+        onTranscript(result.transcription);
+        
+        if (result.detectedLanguage) {
+          onLanguageDetected(result.detectedLanguage);
+        }
+      } catch (apiError) {
+        // Fallback to direct API call if service fails
+        const response = await fetch('/api/speech', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            audioData: arrayBufferToBase64(audioData),
+            languageCode: selectedLanguage === 'auto' ? 'auto' : selectedLanguage,
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to process speech');
+        }
+        
+        const result = await response.json();
+        
+        if (result.error) {
+          throw new Error(result.error);
+        }
+        
+        // Update with transcription and detected language
+        onTranscript(result.transcription);
+        
+        if (result.detectedLanguage) {
+          onLanguageDetected(result.detectedLanguage);
+        }
       }
     } catch (err) {
       console.error('Error processing speech:', err);

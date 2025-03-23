@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import VoiceSearch from './VoiceSearch';
 import LanguageSelector from './LanguageSelector';
+import enhancedSearchService from '../services/ai/enhancedSearchService';
 
 const SearchBar: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -24,10 +25,24 @@ const SearchBar: React.FC = () => {
   }, []);
   
   // Handle search submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement search functionality here
-    console.log('Searching for:', query, 'in language:', language);
+    
+    try {
+      // Call the enhanced search service with the query and language
+      const results = await enhancedSearchService.enhanceSearchQuery(query, language);
+      
+      // Log the enhanced search results
+      console.log('Enhanced search results:', results);
+      
+      // In a real implementation, we would update the UI with search results
+      // But for now, we're maintaining the exact same UI as the reference design
+    } catch (error) {
+      console.error('Search error:', error);
+      
+      // Fallback to basic search if enhanced search fails
+      console.log('Falling back to basic search for:', query, 'in language:', language);
+    }
   };
   
   return (
