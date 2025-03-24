@@ -12,65 +12,137 @@ export class VoiceSearchService extends BaseAIService {
    * @param languageCode Language code or 'auto' for automatic detection
    * @returns Transcription result with detected language
    */
+  /**
+   * Transcribe audio data to text with language detection and enhanced error handling
+   * @param audioData Base64 encoded audio data
+   * @param languageCode Language code or 'auto' for automatic detection
+   * @returns Transcription result with detected language
+   */
   async transcribeAudio(audioData: string, languageCode: string = 'auto') {
     try {
+      // Validate inputs
+      if (!audioData) {
+        return {
+          success: false,
+          error: 'No audio data provided',
+          errorCode: 'MISSING_AUDIO_DATA',
+          userMessage: 'No audio was recorded. Please try speaking again.'
+        };
+      }
+      
+      // Check if audio data is too small (likely no speech)
+      if (audioData.length < 1000) {
+        return {
+          success: false,
+          error: 'Audio data too short',
+          errorCode: 'AUDIO_TOO_SHORT',
+          userMessage: 'Recording was too short. Please speak longer.'
+        };
+      }
+      
       // Use mock responses for development/testing
       if (this.useMockResponses) {
+        // Simulate processing delay for more realistic behavior
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         // Simulate different language responses based on the provided language code
-        const mockResponses: Record<string, { transcription: string, detectedLanguage: string }> = {
+        const mockResponses: Record<string, { transcription: string, detectedLanguage: string, confidence?: number }> = {
           'en-US': {
             transcription: "Hi Emi give me the list of expert auto mechanics in Ikoyi Lagos",
-            detectedLanguage: 'en-US'
+            detectedLanguage: 'en-US',
+            confidence: 0.95
           },
           'fr-FR': {
             transcription: "Hi Emi donne-moi la liste des mécaniciens automobiles experts à Ikoyi Lagos",
-            detectedLanguage: 'fr-FR'
+            detectedLanguage: 'fr-FR',
+            confidence: 0.92
           },
           'es-ES': {
             transcription: "Hi Emi dame la lista de mecánicos de automóviles expertos en Ikoyi Lagos",
-            detectedLanguage: 'es-ES'
+            detectedLanguage: 'es-ES',
+            confidence: 0.91
           },
           'de-DE': {
             transcription: "Hi Emi gib mir die Liste der Kfz-Experten in Ikoyi Lagos",
-            detectedLanguage: 'de-DE'
+            detectedLanguage: 'de-DE',
+            confidence: 0.89
           },
           'zh-CN': {
             transcription: "Hi Emi 给我伊科伊拉各斯的专业汽车机械师名单",
-            detectedLanguage: 'zh-CN'
+            detectedLanguage: 'zh-CN',
+            confidence: 0.87
           },
           'ar-SA': {
             transcription: "Hi Emi أعطني قائمة بميكانيكي السيارات الخبراء في إيكوي لاغوس",
-            detectedLanguage: 'ar-SA'
+            detectedLanguage: 'ar-SA',
+            confidence: 0.85
           },
           'hi-IN': {
             transcription: "Hi Emi मुझे इकोयी लागोस में विशेषज्ञ ऑटो मैकेनिक की सूची दें",
-            detectedLanguage: 'hi-IN'
+            detectedLanguage: 'hi-IN',
+            confidence: 0.86
           },
           'ja-JP': {
             transcription: "Hi Emi イコイラゴスの専門自動車整備士のリストを教えてください",
-            detectedLanguage: 'ja-JP'
+            detectedLanguage: 'ja-JP',
+            confidence: 0.88
           },
           'ru-RU': {
             transcription: "Hi Emi дай мне список экспертов-автомехаников в Икойи Лагос",
-            detectedLanguage: 'ru-RU'
+            detectedLanguage: 'ru-RU',
+            confidence: 0.84
           },
           'sw-KE': {
             transcription: "Hi Emi nipe orodha ya mafundi wa magari wataalam katika Ikoyi Lagos",
-            detectedLanguage: 'sw-KE'
+            detectedLanguage: 'sw-KE',
+            confidence: 0.82
           },
           'yo-NG': {
             transcription: "Hi Emi fun mi ni akojọ awọn ọjọgbọn mekaniki ọkọ ni Ikoyi Lagos",
-            detectedLanguage: 'yo-NG'
+            detectedLanguage: 'yo-NG',
+            confidence: 0.83
           },
           'ha-NG': {
             transcription: "Hi Emi ba ni jerin masana na mota a Ikoyi Lagos",
-            detectedLanguage: 'ha-NG'
+            detectedLanguage: 'ha-NG',
+            confidence: 0.81
           },
           'ig-NG': {
             transcription: "Hi Emi nye m ndepụta ndị ọkachamara na mmezi ụgbọala na Ikoyi Lagos",
-            detectedLanguage: 'ig-NG'
+            detectedLanguage: 'ig-NG',
+            confidence: 0.80
           }
         };
+        
+        // Randomly simulate errors (about 5% of the time) for testing error handling
+        const shouldSimulateError = Math.random() < 0.05;
+        if (shouldSimulateError) {
+          const errorTypes = [
+            {
+              success: false,
+              error: 'No speech detected',
+              errorCode: 'NO_SPEECH_DETECTED',
+              userMessage: this.getLocalizedErrorMessage('no_speech_detected', languageCode) || 
+                          'No speech was detected. Please speak clearly and try again.'
+            },
+            {
+              success: false,
+              error: 'Network error',
+              errorCode: 'NETWORK_ERROR',
+              userMessage: this.getLocalizedErrorMessage('network_error', languageCode) || 
+                          'Network connection issue. Please check your internet connection and try again.'
+            },
+            {
+              success: false,
+              error: 'Language not supported',
+              errorCode: 'LANGUAGE_NOT_SUPPORTED',
+              userMessage: this.getLocalizedErrorMessage('language_not_supported', languageCode) || 
+                          'The selected language is not currently supported. Please try another language.'
+            }
+          ];
+          
+          return errorTypes[Math.floor(Math.random() * errorTypes.length)];
+        }
         
         // If language is auto or not in our mock responses, return English
         const mockResponse = mockResponses[languageCode] || mockResponses['en-US'];
@@ -78,7 +150,8 @@ export class VoiceSearchService extends BaseAIService {
         return {
           success: true,
           transcription: mockResponse.transcription,
-          detectedLanguage: mockResponse.detectedLanguage
+          detectedLanguage: mockResponse.detectedLanguage,
+          confidence: mockResponse.confidence || 0.9
         };
       }
       
@@ -129,24 +202,114 @@ export class VoiceSearchService extends BaseAIService {
         'Authorization': `Bearer ${this.apiKey}`
       };
       
-      const response = await this.makeRequest(endpoint, data, headers);
+      // Use enhanced request with retry options
+      const response = await this.makeRequest(endpoint, data, headers, {
+        retries: 3,
+        timeout: 15000,
+        language: languageCode
+      });
+      
+      // Check for empty results (no speech detected)
+      if (!response.results || response.results.length === 0) {
+        return {
+          success: false,
+          error: 'No speech detected',
+          errorCode: 'NO_SPEECH_DETECTED',
+          userMessage: this.getLocalizedErrorMessage('no_speech_detected', languageCode) || 
+                      'No speech was detected. Please speak clearly and try again.'
+        };
+      }
       
       // Get the transcription from the response
-      let transcription = response.results?.[0]?.alternatives?.[0]?.transcript || '';
+      let transcription = response.results[0]?.alternatives?.[0]?.transcript || '';
+      
+      // Check for empty transcription
+      if (!transcription.trim()) {
+        return {
+          success: false,
+          error: 'Empty transcription',
+          errorCode: 'EMPTY_TRANSCRIPTION',
+          userMessage: this.getLocalizedErrorMessage('empty_transcription', languageCode) || 
+                      'Could not understand speech. Please speak clearly and try again.'
+        };
+      }
+      
+      // Check for low confidence
+      const confidence = response.results[0]?.alternatives?.[0]?.confidence || 0;
+      if (confidence < 0.3) {
+        return {
+          success: false,
+          error: 'Low confidence transcription',
+          errorCode: 'LOW_CONFIDENCE',
+          userMessage: this.getLocalizedErrorMessage('low_confidence', languageCode) || 
+                      'Speech recognition confidence is low. Please speak clearly and try again.',
+          transcription: transcription, // Still return the transcription for debugging
+          confidence: confidence
+        };
+      }
       
       // Format the transcription to match the "Hi Emi..." format if it doesn't already
       if (transcription && !transcription.toLowerCase().startsWith('hi emi')) {
         transcription = `Hi Emi ${transcription}`;
       }
       
+      // Get detected language from response or fallback to requested language
+      const detectedLanguage = response.results[0]?.languageCode || languageCode;
+      
       return {
         success: true,
         transcription: transcription,
-        confidence: response.results?.[0]?.alternatives?.[0]?.confidence || 0,
-        detectedLanguage: response.results?.[0]?.languageCode || languageCode
+        confidence: confidence,
+        detectedLanguage: detectedLanguage
       };
     } catch (error) {
-      return this.handleError(typeof error === 'string' ? error : 'Failed to transcribe audio');
+      console.error('Voice search error:', error);
+      
+      // Categorize errors for better user feedback
+      if (error instanceof Error) {
+        if (error.message.includes('timeout') || error.message.includes('DEADLINE_EXCEEDED')) {
+          return {
+            success: false,
+            error: 'Request timeout',
+            errorCode: 'REQUEST_TIMEOUT',
+            userMessage: this.getLocalizedErrorMessage('request_timeout', languageCode) || 
+                        'The request took too long to process. Please try again.'
+          };
+        } else if (error.message.includes('network') || error.message.includes('UNAVAILABLE')) {
+          return {
+            success: false,
+            error: 'Network error',
+            errorCode: 'NETWORK_ERROR',
+            userMessage: this.getLocalizedErrorMessage('network_error', languageCode) || 
+                        'Network connection issue. Please check your internet connection and try again.'
+          };
+        } else if (error.message.includes('permission') || error.message.includes('PERMISSION_DENIED')) {
+          return {
+            success: false,
+            error: 'Permission denied',
+            errorCode: 'PERMISSION_DENIED',
+            userMessage: this.getLocalizedErrorMessage('permission_denied', languageCode) || 
+                        'Permission to access speech recognition was denied.'
+          };
+        } else if (error.message.includes('language') || error.message.includes('not supported')) {
+          return {
+            success: false,
+            error: 'Language not supported',
+            errorCode: 'LANGUAGE_NOT_SUPPORTED',
+            userMessage: this.getLocalizedErrorMessage('language_not_supported', languageCode) || 
+                        'The selected language is not currently supported. Please try another language.'
+          };
+        }
+      }
+      
+      // Generic error with localized message
+      return {
+        success: false,
+        error: typeof error === 'string' ? error : 'Failed to transcribe audio',
+        errorCode: 'TRANSCRIPTION_ERROR',
+        userMessage: this.getLocalizedErrorMessage('transcription_error', languageCode) || 
+                    'An error occurred while processing your speech. Please try again.'
+      };
     }
   }
   
