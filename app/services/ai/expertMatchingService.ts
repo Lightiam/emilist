@@ -375,42 +375,211 @@ export class ExpertMatchingService extends BaseAIService {
   
   // Helper methods for scoring
   private calculateSkillMatch(expertSkills: string[], requiredSkills: string[]): number {
-    // Implementation of skill matching algorithm
-    let matchCount = 0;
-    for (const skill of requiredSkills) {
-      if (expertSkills.some(s => s.toLowerCase().includes(skill.toLowerCase()))) {
-        matchCount++;
+    if (!expertSkills || !requiredSkills || expertSkills.length === 0 || requiredSkills.length === 0) {
+      return 0.5; // Neutral score if no skills data
+    }
+    
+    // Enhanced implementation with weighted skill matching
+    let exactMatchCount = 0;
+    let partialMatchCount = 0;
+    let totalWeight = 0;
+    
+    // Assign weights to required skills (could be based on importance)
+    const skillWeights = requiredSkills.map((_, index) => {
+      // Skills mentioned earlier are often more important
+      const weight = 1 - (index * 0.1 > 0.5 ? 0.5 : index * 0.1);
+      totalWeight += weight;
+      return weight;
+    });
+    
+    // Calculate weighted matches
+    let weightedMatchScore = 0;
+    
+    for (let i = 0; i < requiredSkills.length; i++) {
+      const requiredSkill = requiredSkills[i].toLowerCase();
+      const weight = skillWeights[i];
+      
+      // Check for exact match
+      if (expertSkills.some(s => s.toLowerCase() === requiredSkill)) {
+        exactMatchCount++;
+        weightedMatchScore += weight;
+      } 
+      // Check for partial match
+      else if (expertSkills.some(s => s.toLowerCase().includes(requiredSkill) || 
+                                     requiredSkill.includes(s.toLowerCase()))) {
+        partialMatchCount++;
+        weightedMatchScore += weight * 0.5;
       }
     }
-    return requiredSkills.length > 0 ? matchCount / requiredSkills.length : 0;
+    
+    // Calculate final score with bonus for having exact matches
+    const baseScore = totalWeight > 0 ? weightedMatchScore / totalWeight : 0;
+    const exactMatchBonus = exactMatchCount > 0 ? 0.1 : 0;
+    
+    return Math.min(1.0, baseScore + exactMatchBonus);
   }
   
   private calculateLocationProximity(expertLocation: string, projectLocation: string): number {
-    // In a real implementation, this would use geocoding and distance calculation
-    // For now, exact match gets 1.0, partial match 0.5, no match 0
-    if (expertLocation.toLowerCase() === projectLocation.toLowerCase()) {
-      return 1.0;
-    } else if (expertLocation.toLowerCase().includes(projectLocation.toLowerCase()) || 
-               projectLocation.toLowerCase().includes(expertLocation.toLowerCase())) {
-      return 0.5;
+    if (!expertLocation || !projectLocation) {
+      return 0.5; // Neutral score if location data is missing
     }
-    return 0;
+    
+    // Enhanced implementation with more granular location matching
+    const expertLocationLower = expertLocation.toLowerCase();
+    const projectLocationLower = projectLocation.toLowerCase();
+    
+    // Split locations into components (e.g., "Ikoyi, Lagos" -> ["ikoyi", "lagos"])
+    const expertLocationParts = expertLocationLower.split(/[,\s]+/).filter(Boolean);
+    const projectLocationParts = projectLocationLower.split(/[,\s]+/).filter(Boolean);
+    
+    // Exact full string match
+    if (expertLocationLower === projectLocationLower) {
+      return 1.0;
+    }
+    
+    // Count matching location parts
+    let matchingParts = 0;
+    let totalParts = projectLocationParts.length;
+    
+    for (const part of projectLocationParts) {
+      if (expertLocationParts.includes(part)) {
+        matchingParts++;
+      }
+    }
+    
+    // Calculate match percentage with higher weight for more specific matches
+    if (matchingParts === 0) {
+      // Check for partial text matches if no exact part matches
+      if (expertLocationLower.includes(projectLocationLower) || 
+          projectLocationLower.includes(expertLocationLower)) {
+        return 0.6;
+      }
+      
+      // Check if any parts partially match
+      for (const projectPart of projectLocationParts) {
+        if (expertLocationParts.some(expertPart => 
+            expertPart.includes(projectPart) || projectPart.includes(expertPart))) {
+          return 0.4;
+        }
+      }
+      
+      return 0.1; // Very low match
+    }
+    
+    // Calculate score based on matching parts ratio with a bonus for matching all parts
+    const matchRatio = matchingParts / totalParts;
+    const allPartsBonus = matchingParts === totalParts ? 0.2 : 0;
+    
+    return Math.min(1.0, matchRatio * 0.8 + allPartsBonus);
   }
   
   private calculateExpertiseMatch(expertLevel: string, requiredLevel: string): number {
-    // Simple implementation - could be more sophisticated with level mapping
-    const levels = ['beginner', 'intermediate', 'advanced', 'expert'];
-    const expertIdx = levels.findIndex(l => l === expertLevel.toLowerCase());
-    const requiredIdx = levels.findIndex(l => l === requiredLevel.toLowerCase());
+    if (!expertLevel || !requiredLevel) {
+      return 0.5; // Neutral score if expertise data is missing
+    }
     
-    if (expertIdx >= requiredIdx) {
+    // Enhanced implementation with more granular level mapping
+    const levels = ['beginner', 'intermediate', 'advanced', 'expert', 'master'];
+    
+    // Normalize levels to handle variations in terminology
+    const normalizedExpertLevel = this.normalizeExpertiseLevel(expertLevel);
+    const normalizedRequiredLevel = this.normalizeExpertiseLevel(requiredLevel);
+    
+    const expertIdx = levels.findIndex(l => l === normalizedExpertLevel.toLowerCase());
+    const requiredIdx = levels.findIndex(l => l === normalizedRequiredLevel.toLowerCase());
+    
+    // Handle unknown levels
+    if (expertIdx === -1 || requiredIdx === -1) {
+      // If we can't determine the level, give a neutral score
+      return 0.5;
+    }
+    
+    // Expert exactly matches required level
+    if (expertIdx === requiredIdx) {
       return 1.0;
     }
-    return 0.5;
+    
+    // Expert exceeds required level
+    if (expertIdx > requiredIdx) {
+      // Higher score for being just one level above (e.g., advanced when intermediate is required)
+      // Lower score for being much higher (might be overqualified/expensive)
+      const levelDifference = expertIdx - requiredIdx;
+      return Math.max(0.7, 1.0 - (levelDifference - 1) * 0.1);
+    }
+    
+    // Expert is below required level
+    const levelDeficit = requiredIdx - expertIdx;
+    
+    // One level below might still be acceptable
+    if (levelDeficit === 1) {
+      return 0.6;
+    }
+    
+    // Two levels below is less desirable
+    if (levelDeficit === 2) {
+      return 0.3;
+    }
+    
+    // More than two levels below is not a good match
+    return 0.1;
+  }
+  
+  /**
+   * Normalize expertise level terms to standard categories
+   * @param level Original expertise level term
+   * @returns Normalized level term
+   */
+  private normalizeExpertiseLevel(level: string): string {
+    const lowerLevel = level.toLowerCase();
+    
+    // Map various terms to standard levels
+    if (lowerLevel.includes('begin') || lowerLevel.includes('junior') || lowerLevel.includes('entry')) {
+      return 'beginner';
+    } else if (lowerLevel.includes('inter') || lowerLevel.includes('mid')) {
+      return 'intermediate';
+    } else if (lowerLevel.includes('advanc') || lowerLevel.includes('senior') || lowerLevel.includes('high')) {
+      return 'advanced';
+    } else if (lowerLevel.includes('expert') || lowerLevel.includes('special')) {
+      return 'expert';
+    } else if (lowerLevel.includes('master') || lowerLevel.includes('elite') || lowerLevel.includes('premium')) {
+      return 'master';
+    }
+    
+    // Default to intermediate if we can't determine
+    return 'intermediate';
   }
   
   private calculateBudgetAlignment(expertRateRange: any, projectBudget: number): number {
-    const { min, max } = expertRateRange;
+    if (!expertRateRange || !projectBudget) {
+      return 0.5; // Neutral score if budget data is missing
+    }
+    
+    // Handle different rate range formats
+    let min = 0;
+    let max = 0;
+    
+    if (typeof expertRateRange === 'object' && expertRateRange !== null) {
+      // Object with min/max properties
+      min = expertRateRange.min || 0;
+      max = expertRateRange.max || 0;
+    } else if (typeof expertRateRange === 'number') {
+      // Single number (fixed rate)
+      min = max = expertRateRange;
+    } else if (typeof expertRateRange === 'string') {
+      // String format (e.g., "1000-2000")
+      const parts = expertRateRange.split('-').map(p => parseFloat(p.replace(/[^0-9.]/g, '')));
+      if (parts.length >= 2) {
+        min = parts[0] || 0;
+        max = parts[1] || 0;
+      } else if (parts.length === 1) {
+        min = max = parts[0] || 0;
+      }
+    }
+    
+    // Ensure min and max are valid
+    if (min > max) {
+      [min, max] = [max, min];
+    }
     
     // Expert's rate is within budget
     if (min <= projectBudget && max >= projectBudget) {
@@ -422,8 +591,29 @@ export class ExpertMatchingService extends BaseAIService {
       return 0.7;
     }
     
+    // Expert's maximum rate is slightly below budget (within 20%)
+    if (max < projectBudget && max >= projectBudget * 0.8) {
+      return 0.8;
+    }
+    
     // Expert's rate is significantly above budget
-    return 0.3;
+    if (min > projectBudget * 1.2) {
+      // Calculate how far above budget
+      const ratio = min / projectBudget;
+      // Score decreases as ratio increases
+      return Math.max(0.1, 0.5 - (ratio - 1.2) * 0.2);
+    }
+    
+    // Expert's rate is significantly below budget
+    if (max < projectBudget * 0.8) {
+      // Calculate how far below budget
+      const ratio = max / projectBudget;
+      // Score decreases as ratio decreases
+      return Math.max(0.3, ratio);
+    }
+    
+    // Fallback
+    return 0.5;
   }
   
   /**
@@ -433,31 +623,82 @@ export class ExpertMatchingService extends BaseAIService {
    * @returns Language compatibility score between 0 and 1
    */
   private calculateLanguageCompatibility(expertLanguages: string[], userLanguage: string): number {
-    if (!expertLanguages || expertLanguages.length === 0) {
-      return 0.5; // Neutral score if no language data
+    if (!expertLanguages || expertLanguages.length === 0 || !userLanguage) {
+      return 0.5; // Neutral score if language data is missing
     }
     
     // Get language prefix (e.g., 'en' from 'en-US')
-    const userLangPrefix = userLanguage.split('-')[0];
+    const userLangPrefix = userLanguage.split('-')[0].toLowerCase();
     
-    // Check for exact match
-    if (expertLanguages.includes(userLanguage)) {
+    // Language families for better matching across related languages
+    const languageFamilies: Record<string, string[]> = {
+      'germanic': ['en', 'de', 'nl', 'af', 'sv', 'no', 'da', 'is'],
+      'romance': ['fr', 'es', 'it', 'pt', 'ro', 'ca'],
+      'slavic': ['ru', 'uk', 'pl', 'cs', 'sk', 'bg', 'hr', 'sr', 'sl'],
+      'indic': ['hi', 'bn', 'pa', 'gu', 'mr', 'ne', 'si', 'ur'],
+      'african': ['sw', 'yo', 'ha', 'ig', 'zu', 'xh', 'st', 'sn'],
+      'semitic': ['ar', 'he', 'am', 'ti'],
+      'turkic': ['tr', 'az', 'kk', 'ky', 'uz', 'ug'],
+      'sinitic': ['zh', 'yue', 'wuu', 'hak', 'nan']
+    };
+    
+    // Find user language family
+    let userLangFamily = '';
+    for (const [family, languages] of Object.entries(languageFamilies)) {
+      if (languages.includes(userLangPrefix)) {
+        userLangFamily = family;
+        break;
+      }
+    }
+    
+    // Normalize expert languages for comparison
+    const normalizedExpertLangs = expertLanguages.map(lang => {
+      const parts = lang.split('-');
+      return parts[0].toLowerCase();
+    });
+    
+    // Check for exact match (e.g., 'en-US' and 'en-US')
+    if (expertLanguages.some(lang => lang.toLowerCase() === userLanguage.toLowerCase())) {
       return 1.0;
     }
     
     // Check for language prefix match (e.g., 'en-US' and 'en-GB')
-    for (const lang of expertLanguages) {
-      if (lang.startsWith(userLangPrefix + '-')) {
-        return 0.9;
+    if (normalizedExpertLangs.includes(userLangPrefix)) {
+      return 0.9;
+    }
+    
+    // Check for language family match (e.g., 'fr' and 'es' are both Romance languages)
+    if (userLangFamily) {
+      const expertLangFamilies = new Set<string>();
+      
+      for (const expertLang of normalizedExpertLangs) {
+        for (const [family, languages] of Object.entries(languageFamilies)) {
+          if (languages.includes(expertLang)) {
+            expertLangFamilies.add(family);
+            break;
+          }
+        }
+      }
+      
+      if (expertLangFamilies.has(userLangFamily)) {
+        return 0.7;
       }
     }
     
-    // Check if expert speaks English (as a fallback)
-    if (userLangPrefix !== 'en' && expertLanguages.some(l => l.startsWith('en-'))) {
-      return 0.7;
+    // Check if expert speaks English (as a common fallback)
+    if (userLangPrefix !== 'en' && normalizedExpertLangs.includes('en')) {
+      return 0.6;
     }
     
-    return 0.3; // Low compatibility if no matches
+    // Check if expert speaks any widely spoken language
+    const widelySpokenLanguages = ['en', 'zh', 'es', 'ar', 'fr', 'ru'];
+    for (const lang of widelySpokenLanguages) {
+      if (userLangPrefix !== lang && normalizedExpertLangs.includes(lang)) {
+        return 0.4;
+      }
+    }
+    
+    return 0.2; // Very low compatibility if no matches
   }
   
   /**
