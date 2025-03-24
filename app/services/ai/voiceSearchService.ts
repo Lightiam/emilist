@@ -10,7 +10,12 @@ export class VoiceSearchService extends BaseAIService {
     try {
       // Use mock responses for development/testing
       if (this.useMockResponses) {
-        return this.getMockResponse('voice-search');
+        // Return a mock response with the "Hi Emi..." format
+        return {
+          success: true,
+          transcription: "Hi Emi give me the list of expert auto mechanics in Ikoyi Lagos",
+          detectedLanguage: languageCode === 'auto' ? 'en-US' : languageCode
+        };
       }
       
       const endpoint = `https://speech.googleapis.com/v1p1beta1/speech:recognize`;
@@ -37,9 +42,17 @@ export class VoiceSearchService extends BaseAIService {
       
       const response = await this.makeRequest(endpoint, data, headers);
       
+      // Get the transcription from the response
+      let transcription = response.results?.[0]?.alternatives?.[0]?.transcript || '';
+      
+      // Format the transcription to match the "Hi Emi..." format if it doesn't already
+      if (transcription && !transcription.toLowerCase().startsWith('hi emi')) {
+        transcription = `Hi Emi ${transcription}`;
+      }
+      
       return {
         success: true,
-        transcription: response.results?.[0]?.alternatives?.[0]?.transcript || '',
+        transcription: transcription,
         detectedLanguage: response.results?.[0]?.languageCode || languageCode
       };
     } catch (error) {
