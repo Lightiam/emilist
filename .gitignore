@@ -1,0 +1,11 @@
+# Build artifacts
+.next/
+out/
+node_modules/
+
+# Environment variables
+.env
+
+# Misc
+*.bak
+engine.bin
