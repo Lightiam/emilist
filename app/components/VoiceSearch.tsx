@@ -423,39 +423,77 @@ const VoiceSearch: React.FC<VoiceSearchProps> = ({
   
   return (
     <div className="relative">
-      {/* Voice search button */}
+      {/* Voice search button with enhanced visual states */}
       <button 
         type="button"
         onClick={toggleListening}
         className={`absolute right-8 top-1/2 transform -translate-y-1/2 ${
-          isListening ? 'bg-red-500' : isProcessing ? 'bg-yellow-500' : 'bg-primary'
-        } text-white p-1 rounded-full w-6 h-6 flex items-center justify-center shadow-xs transition-all duration-200 hover:scale-110`}
+          isListening 
+            ? 'bg-red-500 ring-4 ring-red-200' 
+            : isProcessing 
+              ? 'bg-yellow-500 ring-2 ring-yellow-200' 
+              : 'bg-primary hover:bg-primary-dark'
+        } text-white p-1 rounded-full w-6 h-6 flex items-center justify-center shadow-sm transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary`}
         aria-label={isListening ? 'Stop listening' : 'Start voice search'}
         disabled={isProcessing || (!!error && error.includes('does not support'))}
+        title={isListening ? 'Click to stop listening' : isProcessing ? 'Processing speech...' : 'Click to start voice search'}
       >
         <img 
           src="/assets/icons/microphone-icon.svg" 
           alt="Microphone" 
-          className={`w-3 h-3 ${isListening ? 'animate-pulse' : isProcessing ? 'animate-pulse' : ''}`}
+          className={`w-3 h-3 ${
+            isListening 
+              ? 'animate-pulse' 
+              : isProcessing 
+                ? 'animate-spin-slow' 
+                : 'transform transition-transform duration-300 group-hover:scale-110'
+          }`}
         />
       </button>
       
-      {/* Visual feedback for listening state */}
+      {/* Enhanced visual feedback for listening state - multiple rings */}
       {isListening && (
-        <div className="absolute right-8 top-1/2 transform -translate-y-1/2 w-10 h-10 -m-2 rounded-full bg-red-500 bg-opacity-20 animate-ping"></div>
+        <>
+          <div className="absolute right-8 top-1/2 transform -translate-y-1/2 w-10 h-10 -m-2 rounded-full bg-red-500 bg-opacity-20 animate-ping"></div>
+          <div className="absolute right-8 top-1/2 transform -translate-y-1/2 w-14 h-14 -m-4 rounded-full bg-red-500 bg-opacity-10 animate-ping animation-delay-300"></div>
+          <div className="absolute right-8 top-1/2 transform -translate-y-1/2 w-18 h-18 -m-6 rounded-full bg-red-500 bg-opacity-5 animate-ping animation-delay-600"></div>
+        </>
       )}
       
-      {/* Error message tooltip */}
+      {/* Processing animation */}
+      {isProcessing && (
+        <div className="absolute right-8 top-1/2 transform -translate-y-1/2 w-10 h-10 -m-2 rounded-full border-2 border-yellow-500 border-t-transparent animate-spin"></div>
+      )}
+      
+      {/* Enhanced error message tooltip with icon */}
       {error && (
-        <div className="absolute right-16 top-1/2 transform -translate-y-1/2 bg-white border border-gray-200 rounded-md shadow-md p-2 text-xs text-red-500 w-48 z-10">
-          {error}
+        <div className="absolute right-16 top-1/2 transform -translate-y-1/2 bg-white border border-red-200 rounded-md shadow-md p-2 text-xs text-red-500 w-56 z-10 flex items-start space-x-2 animate-fade-in">
+          <svg className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>{error}</span>
         </div>
       )}
       
-      {/* "Hi Emi" prompt tooltip */}
+      {/* Enhanced "Hi Emi" prompt tooltip with microphone icon */}
       {isListening && (
-        <div className="absolute right-16 top-1/2 transform -translate-y-1/2 bg-white border border-gray-200 rounded-md shadow-md p-2 text-xs text-gray-700 w-48 z-10">
-          Say <span className="font-bold">"Hi Emi"</span> followed by your question
+        <div className="absolute right-16 top-1/2 transform -translate-y-1/2 bg-white border border-green-200 rounded-md shadow-md p-2 text-xs text-gray-700 w-56 z-10 flex items-start space-x-2 animate-fade-in">
+          <svg className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+          </svg>
+          <div>
+            <span className="font-medium text-green-600 block mb-0.5">Listening...</span>
+            Say <span className="font-bold">"Hi Emi"</span> followed by your question
+            <span className="block mt-1 text-gray-500 text-2xs">Example: "Hi Emi find plumbers in Lagos"</span>
+          </div>
+        </div>
+      )}
+      
+      {/* Language indicator when processing */}
+      {isProcessing && (
+        <div className="absolute right-16 top-1/2 transform -translate-y-1/2 mt-8 bg-white border border-yellow-200 rounded-md shadow-md p-2 text-xs text-gray-700 z-10 animate-fade-in">
+          <span className="text-yellow-600">Processing speech in </span>
+          <span className="font-medium">{selectedLanguage === 'auto' ? 'auto-detect' : selectedLanguage}</span>
         </div>
       )}
     </div>
