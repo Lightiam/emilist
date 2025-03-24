@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import geoLocationService from '../services/ai/geoLocationService';
 
 interface VoiceSearchProps {
   onTranscript: (text: string) => void;
@@ -50,6 +51,25 @@ const VoiceSearch: React.FC<VoiceSearchProps> = ({
     };
   }, [cleanupAudio]);
   
+  // Detect user's language based on geolocation on component mount
+  useEffect(() => {
+    const detectLanguage = async () => {
+      try {
+        const detectedLanguage = await geoLocationService.detectUserLanguage();
+        if (detectedLanguage && detectedLanguage !== selectedLanguage) {
+          onLanguageDetected(detectedLanguage);
+        }
+      } catch (error) {
+        console.error('Error detecting user language:', error);
+      }
+    };
+    
+    // Only run detection if we're using the default language
+    if (selectedLanguage === 'en-US' || selectedLanguage === 'auto') {
+      detectLanguage();
+    }
+  }, [selectedLanguage, onLanguageDetected]);
+  
   // Start recording
   const startRecording = async () => {
     try {
@@ -85,7 +105,7 @@ const VoiceSearch: React.FC<VoiceSearchProps> = ({
     }
   };
   
-  // Stop recording and process audio
+  // Stop recording and process audio with enhanced error handling
   const stopRecording = async () => {
     if (!isListening || !audioContextRef.current) return;
     
@@ -93,40 +113,160 @@ const VoiceSearch: React.FC<VoiceSearchProps> = ({
     setIsProcessing(true);
     
     try {
+      // Play a subtle sound to indicate end of listening
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime); // Low volume
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.1); // Very short beep
+      } catch (audioErr) {
+        console.error('Error playing audio feedback:', audioErr);
+        // Non-critical error, continue with processing
+      }
+      
       // Convert audio data to the right format for Google Speech API
       const audioData = convertAudioToWav(audioChunksRef.current, audioContextRef.current.sampleRate);
       
-      // Send to server for processing
-      const response = await fetch('/api/speech', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          audioData: arrayBufferToBase64(audioData),
-          languageCode: selectedLanguage === 'auto' ? 'auto' : selectedLanguage,
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to process speech');
+      // Check if we have enough audio data
+      if (audioChunksRef.current.length < 5) {
+        throw new Error('Recording too short. Please speak longer.');
       }
       
-      const result = await response.json();
+      // Use the AI voice search service for processing
+      const voiceSearchService = await import('../services/ai/voiceSearchService').then(module => module.default);
       
-      if (result.error) {
-        throw new Error(result.error);
-      }
-      
-      // Update with transcription and detected language
-      onTranscript(result.transcription);
-      
-      if (result.detectedLanguage) {
-        onLanguageDetected(result.detectedLanguage);
+      try {
+        // Send to server for processing via the voice search service
+        const result = await voiceSearchService.transcribeAudio(
+          arrayBufferToBase64(audioData),
+          selectedLanguage === 'auto' ? 'auto' : selectedLanguage
+        );
+        
+        if (!result.success) {
+          throw new Error('Failed to process speech');
+        }
+        
+        // Update with transcription and detected language
+        if ('transcription' in result) {
+          // Play success sound
+          try {
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5 note
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime); // Low volume
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.05);
+            
+            setTimeout(() => {
+              const oscillator2 = audioContext.createOscillator();
+              oscillator2.type = 'sine';
+              oscillator2.frequency.setValueAtTime(1320, audioContext.currentTime); // E6 note
+              oscillator2.connect(gainNode);
+              oscillator2.start();
+              oscillator2.stop(audioContext.currentTime + 0.05);
+            }, 100);
+          } catch (audioErr) {
+            // Non-critical error, continue
+            console.error('Error playing success audio:', audioErr);
+          }
+          
+          onTranscript(result.transcription);
+          
+          if ('detectedLanguage' in result && result.detectedLanguage) {
+            onLanguageDetected(result.detectedLanguage);
+          }
+        }
+      } catch (apiError) {
+        console.warn('Primary voice service failed, trying fallback:', apiError);
+        
+        // Fallback to direct API call if service fails
+        const response = await fetch('/api/speech', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            audioData: arrayBufferToBase64(audioData),
+            languageCode: selectedLanguage === 'auto' ? 'auto' : selectedLanguage,
+          }),
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`API error (${response.status}): ${errorText || 'Failed to process speech'}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.error) {
+          throw new Error(result.error);
+        }
+        
+        // Update with transcription and detected language
+        onTranscript(result.transcription);
+        
+        if (result.detectedLanguage) {
+          onLanguageDetected(result.detectedLanguage);
+        }
       }
     } catch (err) {
       console.error('Error processing speech:', err);
-      setError('Error processing speech. Please try again.');
+      
+      // Play error sound
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(220, audioContext.currentTime); // A3 note (low)
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime); // Low volume
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.2);
+      } catch (audioErr) {
+        // Non-critical error
+        console.error('Error playing error audio:', audioErr);
+      }
+      
+      // More user-friendly error messages
+      if (err instanceof Error) {
+        if (err.message.includes('getUserMedia') || err.message.includes('Permission')) {
+          setError('Microphone access denied. Please allow microphone access and try again.');
+        } else if (err.message.includes('too short')) {
+          setError('Recording too short. Please speak longer.');
+        } else if (err.message.includes('no speech')) {
+          setError('No speech detected. Please speak clearly and try again.');
+        } else {
+          setError(`${err.message || 'Error processing speech'}. Please try again.`);
+        }
+      } else {
+        setError('Error processing speech. Please try again.');
+      }
+      
+      // Auto-clear error after 5 seconds
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
     } finally {
       cleanupAudio();
       setIsProcessing(false);
@@ -247,31 +387,116 @@ const VoiceSearch: React.FC<VoiceSearchProps> = ({
     return window.btoa(binary);
   };
   
-  // Toggle recording
+  // Toggle recording with feedback
   const toggleListening = useCallback(() => {
     if (isListening) {
       stopRecording();
     } else {
-      startRecording();
+      // Provide audio feedback when starting to listen
+      try {
+        // Play a subtle sound to indicate start of listening
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5 note
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime); // Low volume
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.15); // Short beep
+        
+        // Small delay before actually starting recording
+        setTimeout(() => {
+          startRecording();
+        }, 150);
+      } catch (err) {
+        console.error('Error playing audio feedback:', err);
+        // If audio feedback fails, just start recording
+        startRecording();
+      }
     }
-  }, [isListening]);
+  }, [isListening, startRecording, stopRecording]);
   
   return (
-    <button 
-      type="button"
-      onClick={toggleListening}
-      className={`absolute right-8 top-1/2 transform -translate-y-1/2 ${
-        isListening ? 'bg-red-500' : isProcessing ? 'bg-yellow-500' : 'bg-primary'
-      } text-white p-1 rounded-full w-6 h-6 flex items-center justify-center shadow-xs`}
-      aria-label={isListening ? 'Stop listening' : 'Start voice search'}
-      disabled={isProcessing || (!!error && error.includes('does not support'))}
-    >
-      <img 
-        src="/assets/icons/microphone-icon.svg" 
-        alt="Microphone" 
-        className={`w-3 h-3 ${isProcessing ? 'animate-pulse' : ''}`}
-      />
-    </button>
+    <div className="relative">
+      {/* Voice search button with enhanced visual states */}
+      <button 
+        type="button"
+        onClick={toggleListening}
+        className={`absolute right-8 top-1/2 transform -translate-y-1/2 ${
+          isListening 
+            ? 'bg-red-500 ring-4 ring-red-200' 
+            : isProcessing 
+              ? 'bg-yellow-500 ring-2 ring-yellow-200' 
+              : 'bg-primary hover:bg-primary-dark'
+        } text-white p-1 rounded-full w-6 h-6 flex items-center justify-center shadow-sm transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary`}
+        aria-label={isListening ? 'Stop listening' : 'Start voice search'}
+        disabled={isProcessing || (!!error && error.includes('does not support'))}
+        title={isListening ? 'Click to stop listening' : isProcessing ? 'Processing speech...' : 'Click to start voice search'}
+      >
+        <img 
+          src="/assets/icons/microphone-icon.svg" 
+          alt="Microphone" 
+          className={`w-3 h-3 ${
+            isListening 
+              ? 'animate-pulse' 
+              : isProcessing 
+                ? 'animate-spin-slow' 
+                : 'transform transition-transform duration-300 group-hover:scale-110'
+          }`}
+        />
+      </button>
+      
+      {/* Enhanced visual feedback for listening state - multiple rings */}
+      {isListening && (
+        <>
+          <div className="absolute right-8 top-1/2 transform -translate-y-1/2 w-10 h-10 -m-2 rounded-full bg-red-500 bg-opacity-20 animate-ping"></div>
+          <div className="absolute right-8 top-1/2 transform -translate-y-1/2 w-14 h-14 -m-4 rounded-full bg-red-500 bg-opacity-10 animate-ping animation-delay-300"></div>
+          <div className="absolute right-8 top-1/2 transform -translate-y-1/2 w-18 h-18 -m-6 rounded-full bg-red-500 bg-opacity-5 animate-ping animation-delay-600"></div>
+        </>
+      )}
+      
+      {/* Processing animation */}
+      {isProcessing && (
+        <div className="absolute right-8 top-1/2 transform -translate-y-1/2 w-10 h-10 -m-2 rounded-full border-2 border-yellow-500 border-t-transparent animate-spin"></div>
+      )}
+      
+      {/* Enhanced error message tooltip with icon */}
+      {error && (
+        <div className="absolute right-16 top-1/2 transform -translate-y-1/2 bg-white border border-red-200 rounded-md shadow-md p-2 text-xs text-red-500 w-56 z-10 flex items-start space-x-2 animate-fade-in">
+          <svg className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>{error}</span>
+        </div>
+      )}
+      
+      {/* Enhanced "Hi Emi" prompt tooltip with microphone icon */}
+      {isListening && (
+        <div className="absolute right-16 top-1/2 transform -translate-y-1/2 bg-white border border-green-200 rounded-md shadow-md p-2 text-xs text-gray-700 w-56 z-10 flex items-start space-x-2 animate-fade-in">
+          <svg className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+          </svg>
+          <div>
+            <span className="font-medium text-green-600 block mb-0.5">Listening...</span>
+            Say <span className="font-bold">"Hi Emi"</span> followed by your question
+            <span className="block mt-1 text-gray-500 text-2xs">Example: "Hi Emi find plumbers in Lagos"</span>
+          </div>
+        </div>
+      )}
+      
+      {/* Language indicator when processing */}
+      {isProcessing && (
+        <div className="absolute right-16 top-1/2 transform -translate-y-1/2 mt-8 bg-white border border-yellow-200 rounded-md shadow-md p-2 text-xs text-gray-700 z-10 animate-fade-in">
+          <span className="text-yellow-600">Processing speech in </span>
+          <span className="font-medium">{selectedLanguage === 'auto' ? 'auto-detect' : selectedLanguage}</span>
+        </div>
+      )}
+    </div>
   );
 };
 
