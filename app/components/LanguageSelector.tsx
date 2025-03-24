@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
-import { supportedLanguages, AUTO_DETECTION_CODE } from '../constants/languages';
+import React, { useState, useEffect } from 'react';
+import { supportedLanguages, AUTO_DETECTION_CODE, getLanguagesByCountry } from '../constants/languages';
+import geoLocationService from '../services/ai/geoLocationService';
 
 interface LanguageSelectorProps {
   selectedLanguage: string;
@@ -13,6 +14,29 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   onLanguageChange 
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Auto-detect country and set language on component mount
+  useEffect(() => {
+    const detectCountryAndSetLanguage = async () => {
+      try {
+        // Only auto-detect if using the default language
+        if (selectedLanguage === 'en-US') {
+          const countryCode = await geoLocationService.detectCountry();
+          const countryLanguages = getLanguagesByCountry(countryCode);
+          
+          // If country has supported languages, use the first one
+          if (countryLanguages.length > 0) {
+            onLanguageChange(countryLanguages[0].code);
+            console.log(`Language automatically set to ${countryLanguages[0].code} based on country ${countryCode}`);
+          }
+        }
+      } catch (error) {
+        console.error('Error auto-detecting language:', error);
+      }
+    };
+    
+    detectCountryAndSetLanguage();
+  }, [selectedLanguage, onLanguageChange]);
   
   const handleSelect = (languageCode: string) => {
     onLanguageChange(languageCode);

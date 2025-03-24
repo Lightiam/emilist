@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import geoLocationService from '../services/ai/geoLocationService';
 
 interface VoiceSearchProps {
   onTranscript: (text: string) => void;
@@ -49,6 +50,25 @@ const VoiceSearch: React.FC<VoiceSearchProps> = ({
       cleanupAudio();
     };
   }, [cleanupAudio]);
+  
+  // Detect user's language based on geolocation on component mount
+  useEffect(() => {
+    const detectLanguage = async () => {
+      try {
+        const detectedLanguage = await geoLocationService.detectUserLanguage();
+        if (detectedLanguage && detectedLanguage !== selectedLanguage) {
+          onLanguageDetected(detectedLanguage);
+        }
+      } catch (error) {
+        console.error('Error detecting user language:', error);
+      }
+    };
+    
+    // Only run detection if we're using the default language
+    if (selectedLanguage === 'en-US' || selectedLanguage === 'auto') {
+      detectLanguage();
+    }
+  }, [selectedLanguage, onLanguageDetected]);
   
   // Start recording
   const startRecording = async () => {

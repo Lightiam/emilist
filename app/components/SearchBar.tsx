@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import VoiceSearch from './VoiceSearch';
 import LanguageSelector from './LanguageSelector';
 import enhancedSearchService from '../services/ai/enhancedSearchService';
+import geoLocationService from '../services/ai/geoLocationService';
 
 const SearchBar: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -22,6 +23,24 @@ const SearchBar: React.FC = () => {
   // Handle language detection from voice search
   const handleLanguageDetected = useCallback((detectedLanguage: string) => {
     setLanguage(detectedLanguage);
+  }, []);
+  
+  // Detect user's language based on geolocation on component mount
+  useEffect(() => {
+    const detectLanguage = async () => {
+      try {
+        const detectedLanguage = await geoLocationService.detectUserLanguage();
+        if (detectedLanguage) {
+          setLanguage(detectedLanguage);
+          console.log('Language automatically set based on location:', detectedLanguage);
+        }
+      } catch (error) {
+        console.error('Error detecting user language:', error);
+      }
+    };
+    
+    // Detect language on initial load
+    detectLanguage();
   }, []);
   
   // Handle search submission
