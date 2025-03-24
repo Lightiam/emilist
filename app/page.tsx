@@ -15,13 +15,13 @@ export default function Home() {
             <div className="hero-images flex justify-between relative">
               <div className="left-images flex flex-col justify-between w-[180px]">
                 <div className="image-container w-[160px] h-[140px] bg-[#f0f0f0] rounded-[15px] overflow-hidden">
-                  <img src="/assets/images/black-artisans/artisan1.jpg" alt="Black artisan working" className="w-full h-full object-cover" />
+                  <img src="/assets/images/black-artisans/artisan1.png" alt="Black artisan working" className="w-full h-full object-cover" />
                 </div>
                 <div className="image-container w-[160px] h-[140px] bg-[#f0f0f0] rounded-[15px] overflow-hidden mt-4">
-                  <img src="/assets/images/black-artisans/artisan2.jpg" alt="Black professional artisan" className="w-full h-full object-cover" />
+                  <img src="/assets/images/black-artisans/artisan2.png" alt="Black professional artisan" className="w-full h-full object-cover" />
                 </div>
                 <div className="image-container w-[160px] h-[140px] bg-[#f0f0f0] rounded-[15px] overflow-hidden mt-4">
-                  <img src="/assets/images/black-artisans/artisan3.jpg" alt="Black artisan at work" className="w-full h-full object-cover" />
+                  <img src="/assets/images/black-artisans/artisan3.png" alt="Black artisan at work" className="w-full h-full object-cover" />
                 </div>
               </div>
               
@@ -41,13 +41,13 @@ export default function Home() {
               
               <div className="right-images flex flex-col justify-between w-[180px]">
                 <div className="image-container w-[160px] h-[140px] bg-[#f0f0f0] rounded-[15px] overflow-hidden">
-                  <img src="/assets/images/black-artisans/artisan4.jpg" alt="Black artisan with tools" className="w-full h-full object-cover" />
+                  <img src="/assets/images/black-artisans/artisan4.png" alt="Black artisan with tools" className="w-full h-full object-cover" />
                 </div>
                 <div className="image-container w-[160px] h-[140px] bg-[#f0f0f0] rounded-[15px] overflow-hidden mt-4">
-                  <img src="/assets/images/black-artisans/artisan1.jpg" alt="Black artisan working" className="w-full h-full object-cover" />
+                  <img src="/assets/images/black-artisans/artisan5.png" alt="Black artisan working" className="w-full h-full object-cover" />
                 </div>
                 <div className="image-container w-[160px] h-[140px] bg-[#f0f0f0] rounded-[15px] overflow-hidden mt-4">
-                  <img src="/assets/images/black-artisans/artisan2.jpg" alt="Black artisan at work" className="w-full h-full object-cover" />
+                  <img src="/assets/images/black-artisans/artisan6.png" alt="Black artisan at work" className="w-full h-full object-cover" />
                 </div>
               </div>
             </div>
