@@ -6,30 +6,119 @@ export class VoiceSearchService extends BaseAIService {
   private readonly projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
   private readonly useMockResponses = true; // Set to false in production
   
+  /**
+   * Transcribe audio data to text with language detection
+   * @param audioData Base64 encoded audio data
+   * @param languageCode Language code or 'auto' for automatic detection
+   * @returns Transcription result with detected language
+   */
   async transcribeAudio(audioData: string, languageCode: string = 'auto') {
     try {
       // Use mock responses for development/testing
       if (this.useMockResponses) {
-        // Return a mock response with the "Hi Emi..." format
+        // Simulate different language responses based on the provided language code
+        const mockResponses: Record<string, { transcription: string, detectedLanguage: string }> = {
+          'en-US': {
+            transcription: "Hi Emi give me the list of expert auto mechanics in Ikoyi Lagos",
+            detectedLanguage: 'en-US'
+          },
+          'fr-FR': {
+            transcription: "Hi Emi donne-moi la liste des mécaniciens automobiles experts à Ikoyi Lagos",
+            detectedLanguage: 'fr-FR'
+          },
+          'es-ES': {
+            transcription: "Hi Emi dame la lista de mecánicos de automóviles expertos en Ikoyi Lagos",
+            detectedLanguage: 'es-ES'
+          },
+          'de-DE': {
+            transcription: "Hi Emi gib mir die Liste der Kfz-Experten in Ikoyi Lagos",
+            detectedLanguage: 'de-DE'
+          },
+          'zh-CN': {
+            transcription: "Hi Emi 给我伊科伊拉各斯的专业汽车机械师名单",
+            detectedLanguage: 'zh-CN'
+          },
+          'ar-SA': {
+            transcription: "Hi Emi أعطني قائمة بميكانيكي السيارات الخبراء في إيكوي لاغوس",
+            detectedLanguage: 'ar-SA'
+          },
+          'hi-IN': {
+            transcription: "Hi Emi मुझे इकोयी लागोस में विशेषज्ञ ऑटो मैकेनिक की सूची दें",
+            detectedLanguage: 'hi-IN'
+          },
+          'ja-JP': {
+            transcription: "Hi Emi イコイラゴスの専門自動車整備士のリストを教えてください",
+            detectedLanguage: 'ja-JP'
+          },
+          'ru-RU': {
+            transcription: "Hi Emi дай мне список экспертов-автомехаников в Икойи Лагос",
+            detectedLanguage: 'ru-RU'
+          },
+          'sw-KE': {
+            transcription: "Hi Emi nipe orodha ya mafundi wa magari wataalam katika Ikoyi Lagos",
+            detectedLanguage: 'sw-KE'
+          },
+          'yo-NG': {
+            transcription: "Hi Emi fun mi ni akojọ awọn ọjọgbọn mekaniki ọkọ ni Ikoyi Lagos",
+            detectedLanguage: 'yo-NG'
+          },
+          'ha-NG': {
+            transcription: "Hi Emi ba ni jerin masana na mota a Ikoyi Lagos",
+            detectedLanguage: 'ha-NG'
+          },
+          'ig-NG': {
+            transcription: "Hi Emi nye m ndepụta ndị ọkachamara na mmezi ụgbọala na Ikoyi Lagos",
+            detectedLanguage: 'ig-NG'
+          }
+        };
+        
+        // If language is auto or not in our mock responses, return English
+        const mockResponse = mockResponses[languageCode] || mockResponses['en-US'];
+        
         return {
           success: true,
-          transcription: "Hi Emi give me the list of expert auto mechanics in Ikoyi Lagos",
-          detectedLanguage: languageCode === 'auto' ? 'en-US' : languageCode
+          transcription: mockResponse.transcription,
+          detectedLanguage: mockResponse.detectedLanguage
         };
       }
       
       const endpoint = `https://speech.googleapis.com/v1p1beta1/speech:recognize`;
       
+      // Enhanced configuration for better multilingual support
       const data = {
         config: {
           encoding: 'LINEAR16',
           sampleRateHertz: 16000,
           languageCode: languageCode === 'auto' ? 'en-US' : languageCode,
           enableAutomaticPunctuation: true,
-          model: 'default',
+          model: 'latest_long', // Use the most advanced model for better accuracy
           useEnhanced: true,
+          enableWordTimeOffsets: false,
+          enableWordConfidence: true,
+          profanityFilter: false,
+          speechContexts: [
+            {
+              phrases: ["Hi Emi", "Emi", "expert", "mechanic", "Lagos", "Ikoyi"],
+              boost: 20 // Boost recognition of these phrases
+            }
+          ],
+          // Expanded language alternatives for better auto-detection
           alternativeLanguageCodes: languageCode === 'auto' ? 
-            ['en-US', 'es-ES', 'fr-FR', 'de-DE', 'zh-CN', 'ru-RU', 'ar-SA', 'hi-IN', 'ja-JP'] : [],
+            [
+              'en-US', 'en-NG', 'en-GH', 'en-KE', 'en-ZA', 
+              'fr-FR', 'fr-CA', 
+              'es-ES', 'es-MX', 
+              'de-DE', 
+              'zh-CN', 'zh-TW', 
+              'ru-RU', 
+              'ar-SA', 'ar-EG', 
+              'hi-IN', 
+              'ja-JP',
+              'sw-KE', 'sw-TZ',
+              'yo-NG',
+              'ha-NG',
+              'ig-NG'
+            ] : [],
         },
         audio: {
           content: audioData
@@ -53,6 +142,7 @@ export class VoiceSearchService extends BaseAIService {
       return {
         success: true,
         transcription: transcription,
+        confidence: response.results?.[0]?.alternatives?.[0]?.confidence || 0,
         detectedLanguage: response.results?.[0]?.languageCode || languageCode
       };
     } catch (error) {
